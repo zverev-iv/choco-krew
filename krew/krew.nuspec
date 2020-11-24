@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>krew</id>
+    <version>0.4.0</version>
+    <packageSourceUrl>https://github.com/zverev-iv/choco-krew/</packageSourceUrl>
+    <owners>zverev-iv</owners>
+    <title>krew (Portable)</title>
+    <authors>The Kubernetes Authors</authors>
+    <projectUrl>https://krew.sigs.k8s.io/</projectUrl>
+    <iconUrl>https://cdn.statically.io/gh/kubernetes-sigs/krew/master/assets/logo/icon/color/krew-icon-color.png</iconUrl>
+    <copyright>2020 The Kubernetes Authors</copyright>
+    <licenseUrl>https://raw.githubusercontent.com/kubernetes-sigs/krew/master/LICENSE</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <projectSourceUrl>https://github.com/kubernetes-sigs/krew</projectSourceUrl>
+    <docsUrl>https://krew.sigs.k8s.io/docs/</docsUrl>
+    <mailingListUrl>https://groups.google.com/forum/#!forum/kubernetes-sig-cli</mailingListUrl>
+    <bugTrackerUrl>https://github.com/kubernetes-sigs/krew/issues</bugTrackerUrl>
+    <tags>krew kubernetes docker container containerd plugin plugins portable</tags>
+    <summary>Krew is the package manager for kubectl plugins</summary>
+    <description>Krew is a tool that makes it easy to use kubectl plugins. Krew helps you discover plugins, install and manage them on your machine. It is similar to tools like apt, dnf or brew. Today, over 100 kubectl plugins are available on Krew.
+
+- For kubectl users: Krew helps you find, install and manage kubectl plugins in a consistent way.
+- For plugin developers: Krew helps you package and distribute your plugins on multiple platforms and makes them discoverable. </description>
+	<releaseNotes>https://github.com/kubernetes-sigs/krew/releases</releaseNotes>
+	<dependencies>
+      <dependency id="git" version="2.28.0" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
