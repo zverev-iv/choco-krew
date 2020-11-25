@@ -5,7 +5,7 @@
     <version>0.4.0</version>
     <packageSourceUrl>https://github.com/zverev-iv/choco-krew/</packageSourceUrl>
     <owners>zverev-iv</owners>
-    <title>krew (Portable)</title>
+    <title>krew (Install)</title>
     <authors>The Kubernetes Authors</authors>
     <projectUrl>https://krew.sigs.k8s.io/</projectUrl>
     <iconUrl>https://cdn.statically.io/gh/kubernetes-sigs/krew/master/assets/logo/icon/color/krew-icon-color.png</iconUrl>
