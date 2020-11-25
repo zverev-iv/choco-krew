@@ -15,7 +15,7 @@ $exeLocation = Get-ChocolateyWebFile @packageArgs
 
 New-Item -Path "$($exeLocation + ".ignore")" -ItemType File -Force | Out-Null
 
-$installLog = "$(Join-Path (Split-Path -parent $MyInvocation.MyCommand.Definition) "install.log"
+$installLog = "$(Join-Path (Split-Path -parent $MyInvocation.MyCommand.Definition) "install.log")"
 Start-Process  -FilePath  "$($exeLocation)" -Args "install krew" -WindowStyle Hidden -Wait -RedirectStandardError $installLog
 
 Install-ChocolateyPath -PathToInstall "$($HOME)\.krew\bin"  -PathType User
