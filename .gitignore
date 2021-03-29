@@ -1,2 +1,5 @@
 *.nupkg
-*.log
+*.nuspec
+tools/*
+build.ps1
+build.sh

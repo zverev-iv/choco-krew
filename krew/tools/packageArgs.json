@@ -1,8 +1,0 @@
-{
-               "url": "https://github.com/kubernetes-sigs/krew/releases/download/v0.4.0/krew.exe",
-          "checksum": "867b1c89a93f1dba04c1339fd66305278c5961989ec3da4a8676150c6e10af33",
-      "checksumType": "sha256",
-          "url64bit": "https://github.com/kubernetes-sigs/krew/releases/download/v0.4.0/krew.exe",
-        "checksum64": "867b1c89a93f1dba04c1339fd66305278c5961989ec3da4a8676150c6e10af33",
-    "checksumType64": "sha256"
-}

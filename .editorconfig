@@ -2,20 +2,25 @@ root = true
 
 [*]
 end_of_line = crlf
-insert_final_newline = true
+charset = utf-8
 trim_trailing_whitespace = true
 
-[*.{nuspec,ps1}]
-charset = utf-8
+[*.ps1]
 indent_style = tab
 indent_size = 4
+insert_final_newline = true
 
-[*{.json}]
-charset = utf-8
-indent_style = space
-indent_size = 4
-
-[{.travis.yml}]
-charset = utf-8
+[*.{yml,yaml}]
 indent_style = space
 indent_size = 2
+insert_final_newline = true
+
+[*.json]
+indent_style = space
+indent_size = 2
+insert_final_newline = false
+
+[*.cake]
+indent_style = space
+indent_size = 4
+insert_final_newline = true
