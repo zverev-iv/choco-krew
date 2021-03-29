@@ -8,7 +8,7 @@ var packageInfo = new ChocolateyPackSettings
 {
     //PACKAGE SPECIFIC SECTION
     Id = "krew",
-    Version = "0.4.0",
+    Version = "0.4.1",
     PackageSourceUrl = new Uri("https://github.com/zverev-iv/choco-krew"),
     Owners = new[] { "zverev-iv" },
     //SOFTWARE SPECIFIC SECTION
