@@ -4,8 +4,8 @@ $packageArgs = @{
 	softwareName   = 'krew'
 	packageName    = $env:ChocolateyPackageName
 	fileFullPath  = "$(Join-Path (Split-Path -parent $MyInvocation.MyCommand.Definition) "krew.exe")"
-	url64bit       = 'https://github.com/kubernetes-sigs/krew/releases/download/v0.4.1/krew.exe'
-	checksum64     = 'D749605F076728452748B53A2D744A9A63D0472D37EDB5D37522267352745FD6'
+	url64bit       = 'https://github.com/kubernetes-sigs/krew/releases/download/v0.4.3/krew.exe'
+	checksum64     = '317D64BA05D6CFCD153418C62D9251CC18CA05DCF35DDC5162FB00315E9F456C'
 	checksumType64 = 'sha256'
 }
 
