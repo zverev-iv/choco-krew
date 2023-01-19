@@ -1,12 +1,12 @@
 ﻿$ErrorActionPreference = 'Stop';
 
 $packageArgs = @{
-	softwareName   = 'krew'
 	packageName    = $env:ChocolateyPackageName
+	softwareName   = "${softwareName}"
+	url64bit       = "${url64bit}"
+	checksum64     = "${checksum64}"
+	checksumType64 = "${checksumType64}"
 	fileFullPath  = "$(Join-Path (Split-Path -parent $MyInvocation.MyCommand.Definition) "krew.exe")"
-	url64bit       = 'https://github.com/kubernetes-sigs/krew/releases/download/v0.4.1/krew.exe'
-	checksum64     = 'D749605F076728452748B53A2D744A9A63D0472D37EDB5D37522267352745FD6'
-	checksumType64 = 'sha256'
 }
 
 $exeLocation = Get-ChocolateyWebFile @packageArgs

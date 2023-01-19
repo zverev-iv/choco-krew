@@ -1,69 +1,22 @@
+#addin nuget:?package=Cake.FileHelpers&version=6.0.0
+#addin nuget:?package=Cake.Json&version=7.0.1
+
+#load "lib/PackageInfo.cs"
+
 ///////////////////////////////////////////////////////////////////////////////
 // ARGUMENTS
 ///////////////////////////////////////////////////////////////////////////////
 
 var target = Argument("target", "Publish");
 
-var packageInfo = new ChocolateyPackSettings
-{
-    //PACKAGE SPECIFIC SECTION
-    Id = "krew",
-    Version = "0.4.1",
-    PackageSourceUrl = new Uri("https://github.com/zverev-iv/choco-krew"),
-    Owners = new[] { "zverev-iv" },
-    //SOFTWARE SPECIFIC SECTION
-    Title = "Krew",
-    Authors = new[] {
-        "The Kubernetes Authors"
-        },
-    Copyright = "2021 The Kubernetes Authors",
-    ProjectUrl = new Uri("https://krew.sigs.k8s.io/"),
-    ProjectSourceUrl = new Uri("https://github.com/kubernetes-sigs/krew"),
-    DocsUrl = new Uri("https://krew.sigs.k8s.io/docs/"),
-    BugTrackerUrl = new Uri("https://github.com/kubernetes-sigs/krew/issues"),
-    MailingListUrl = new Uri("https://groups.google.com/forum/#!forum/kubernetes-sig-cli"),
-    IconUrl = new Uri("https://cdn.statically.io/gh/kubernetes-sigs/krew/master/assets/logo/icon/color/krew-icon-color.png"),
-    LicenseUrl = new Uri("https://raw.githubusercontent.com/kubernetes-sigs/krew/master/LICENSE"),
-    RequireLicenseAcceptance = false,
-    Summary = "Krew is the package manager for kubectl plugins",
-    Description = @"Krew is a tool that makes it easy to use kubectl plugins. Krew helps you discover plugins, install and manage them on your machine. It is similar to tools like apt, dnf or brew. Today, over 100 kubectl plugins are available on Krew.
-
-- For kubectl users: Krew helps you find, install and manage kubectl plugins in a consistent way.
-- For plugin developers: Krew helps you package and distribute your plugins on multiple platforms and makes them discoverable.",
-    ReleaseNotes = new[] { "https://github.com/kubernetes-sigs/krew/releases" },
-    Files = new[] {
-        new ChocolateyNuSpecContent {Source = System.IO.Path.Combine("src", "**"), Target = "tools"}
-        },
-    Tags = new[] {
-        "krew",
-        "kubernetes",
-        "container",
-        "containerd",
-        "plugin",
-        "plugins",
-        "portable"
-        },
-    Dependencies = new[] {
-        new ChocolateyNuSpecDependency {
-            Id = "git",
-            Version = "2.28.0"
-        }
-    }
-};
-
 ///////////////////////////////////////////////////////////////////////////////
 // SETUP / TEARDOWN
 ///////////////////////////////////////////////////////////////////////////////
 
-Setup(ctx =>
-{
-   // Executed BEFORE the first task.
-   Information("Running tasks...");
-});
+Setup<PackageInfo>(setupContext => DeserializeJsonFromFile<PackageInfo>("config.json"));
 
 Teardown(ctx =>
 {
-   // Executed AFTER the last task.
    Information("Finished running tasks.");
 });
 
@@ -71,26 +24,116 @@ Teardown(ctx =>
 // TASKS
 ///////////////////////////////////////////////////////////////////////////////
 
+Task("Print config")
+    .Does<PackageInfo>(data =>
+{
+	Information(SerializeJson<PackageInfo>(data));
+});
+
 Task("Clean")
-    .Does(() =>
+    .Does<PackageInfo>(data =>
 {
     DeleteFiles("./**/*.nupkg");
     DeleteFiles("./**/*.nuspec");
+    DeleteFiles(new DirectoryPath(data.BinDir).Combine("*").ToString());
+    if (DirectoryExists(data.BinDir))
+    {
+        DeleteDirectory(data.BinDir, new DeleteDirectorySettings {
+        Force = true
+        });
+    }
+    DeleteFiles(new DirectoryPath(data.TempDir).Combine("*").ToString());
+    if (DirectoryExists(data.TempDir))
+    {
+        DeleteDirectory(data.TempDir, new DeleteDirectorySettings {
+        Force = true
+        });
+    }
+});
+
+Task(".gitignore clean")
+    .Does<PackageInfo>(data =>
+{
+    var regexes = FileReadLines("./.gitignore");
+    foreach(var regex in regexes)
+    {
+        DeleteFiles(regex);
+    }
+});
+
+Task("Copy src to bin")
+    .Does<PackageInfo>(data =>
+{
+    if (!DirectoryExists(data.BinDir))
+    {
+        CreateDirectory(data.BinDir);
+    }
+    CopyFiles("src/*", data.BinDir);
+});
+
+Task("Set package args")
+    .IsDependentOn("Copy src to bin")
+    .Does<PackageInfo>(data =>
+{
+    ReplaceTextInFiles(new DirectoryPath(data.BinDir).Combine("*").ToString(), "${softwareName}", data.PackageSettings.Id);
+
+    string hash  = null;
+    string hash64 = null;
+    if (!DirectoryExists(data.TempDir))
+    {
+        CreateDirectory(data.TempDir);
+    }
+    if(!string.IsNullOrWhiteSpace(data.Package32Url))
+    {
+        Information("Download x86 binary");
+        var uri = new Uri(data.Package32Url);
+        var fileName = System.IO.Path.GetFileName(uri.LocalPath);
+        var fullFileName = new DirectoryPath(data.TempDir).Combine(fileName).ToString();
+        DownloadFile(data.Package32Url, fullFileName);
+        Information("Calculate sha256 for x86 binary");
+        hash = CalculateFileHash(fullFileName).ToHex();
+        Information("Write x86 data in sources");
+        ReplaceTextInFiles(new DirectoryPath(data.BinDir).Combine("*").ToString(), "${url}", data.Package32Url);
+        ReplaceTextInFiles(new DirectoryPath(data.BinDir).Combine("*").ToString(), "${checksum}", hash);
+        ReplaceTextInFiles(new DirectoryPath(data.BinDir).Combine("*").ToString(), "${checksumType}", "sha256");
+    }
+    if(data.Package64Url == data.Package32Url && hash != null)
+    {
+        Information("x86 and x64 uri are the same");
+        Information("Write x64 data in sources");
+        ReplaceTextInFiles(new DirectoryPath(data.BinDir).Combine("*").ToString(), "${url64bit}", data.Package64Url);
+        ReplaceTextInFiles(new DirectoryPath(data.BinDir).Combine("*").ToString(), "${checksum64}", hash);
+        ReplaceTextInFiles(new DirectoryPath(data.BinDir).Combine("*").ToString(), "${checksumType64}", "sha256");
+    }
+    else if(!string.IsNullOrWhiteSpace(data.Package64Url))
+    {
+        Information("Download x64 binary");
+        var uri = new Uri(data.Package64Url);
+        var fullFileName = System.IO.Path.Combine(data.TempDir, System.IO.Path.GetFileName(uri.LocalPath));
+        DownloadFile(data.Package64Url, fullFileName);
+        Information("Calculate sha256 for x86 binary");
+        hash64 = CalculateFileHash(fullFileName).ToHex();
+        Information("Write x64 data in sources");
+        ReplaceTextInFiles(new DirectoryPath(data.BinDir).Combine("*").ToString(), "${url64bit}", data.Package64Url);
+        ReplaceTextInFiles(new DirectoryPath(data.BinDir).Combine("*").ToString(), "${checksum64}", hash64);
+        ReplaceTextInFiles(new DirectoryPath(data.BinDir).Combine("*").ToString(), "${checksumType64}", "sha256");
+    }
 });
 
 Task("Pack")
     .IsDependentOn("Clean")
-    .Does(() =>
+    .IsDependentOn("Set package args")
+    .Does<PackageInfo>(data =>
 {
-    ChocolateyPack(packageInfo);
+    ChocolateyPack(data.PackageSettings);
 });
 
 Task("Publish")
     .IsDependentOn("Pack")
-    .Does(() =>
+    .Does<PackageInfo>(data =>
 {
     var publishKey = EnvironmentVariable<string>("CHOCOAPIKEY", null);
-    var package = $"{packageInfo.Id}.{packageInfo.Version}.nupkg";
+    var package = $"{data.PackageSettings.Id}.{data.PackageSettings.Version}.nupkg";
 
     ChocolateyPush(package, new ChocolateyPushSettings
     {

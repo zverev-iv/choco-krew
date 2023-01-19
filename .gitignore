@@ -1,5 +1,6 @@
+tools/
+.vscode/
+bin/
+temp/
 *.nupkg
 *.nuspec
-tools/*
-build.ps1
-build.sh
